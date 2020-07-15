@@ -8,11 +8,11 @@
 
 import Foundation
 
-struct EmojiArt {
+struct EmojiArt : Codable {
     var backgroundURL : URL?
     var emojis = [Emoji] ()
     
-    struct Emoji: Identifiable{
+    struct Emoji: Identifiable, Codable{
         let text: String
         var x: Int
         var y: Int // Be the center, regardless of iOS System Coordinate System which upper-left being the (0, 0). needs a converter
@@ -28,6 +28,21 @@ struct EmojiArt {
     }
     
     private var uniqueEmojiID = 0
+    
+    var json : Data? {
+        return try? JSONEncoder().encode(self)
+     }
+    
+    init?( json : Data? ) { // Failable initializer for json init
+        if json != nil, let newEmojiArt = try? JSONDecoder().decode(EmojiArt.self, from: json!){
+            // if newEmojiArt can be extracted
+            self = newEmojiArt // WOW!
+        } else {
+            return nil
+        }
+    }
+    // lose free init !
+    init() { }
     
     mutating func addEmoji(_ text: String, x: Int, y: Int, size: Int) {
         uniqueEmojiID += 1

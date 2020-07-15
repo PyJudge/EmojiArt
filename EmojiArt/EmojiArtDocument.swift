@@ -12,7 +12,20 @@ class EmojiArtDocument: ObservableObject {
     static var palette : String = "🍏🍐🍎🍕🍉🍟"
     @Published private(set) var backgroundImage : UIImage?
     
-    @Published private var emojiArt: EmojiArt = EmojiArt() // Model
+    @Published
+    private var emojiArt: EmojiArt = EmojiArt() {
+        didSet {
+            print("json = \(emojiArt.json?.utf8 ?? "nil")") // to make Data a String
+            UserDefaults.standard.set(emojiArt.json, forKey: EmojiArtDocument.Untitled) // .set knows how to deal with Optionals
+        }
+    } // Model
+    
+    static let Untitled = "EmojiArtDocument.Untitled" // let's be a good programmer :), compile time check
+    
+    init() {
+        emojiArt = EmojiArt(json: UserDefaults.standard.data(forKey: EmojiArtDocument.Untitled)) ?? EmojiArt()
+        fetchBackgroundImageData()
+    }
     
     var emojis : [EmojiArt.Emoji]  { emojiArt.emojis } // read only version of emojiart.emoji
     // MARK: -- Intent(s)
